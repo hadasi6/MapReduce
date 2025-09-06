@@ -1,0 +1,7 @@
+*.o
+*.a
+*~
+*.core
+*.exe
+*.out
+.idea/
