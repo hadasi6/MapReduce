@@ -1,3 +1,128 @@
+```markdown
+# MapReduce Framework (C++)
+
+A modern, thread-safe C++ MapReduce framework for **parallel data processing**.  
+The design cleanly separates user-defined map/reduce logic (client) from the execution engine (framework) that manages threads, synchronization, and job orchestration.
+
+---
+
+## Overview
+
+The framework runs the classic Map → (Sort) → Shuffle → Reduce pipeline in parallel where appropriate, while ensuring correctness and clear resource ownership.
+
+Flow (conceptual):
+
+```
+
++------------------+     +-----------+     +-----------+     +----------+
+\|    Input Data    | --> |   MAP     | --> |  SHUFFLE  | --> |  REDUCE  |
++------------------+     +-----------+     +-----------+     +----------+
+\|                    |
+(multi-threaded)     (single-thread)
+
+```
+
+Time/threads (example with 4 threads):
+
+```
+
+Thread 0:  MAP ---> SORT ----
+Thread 1:  MAP ---> SORT -----\                SHUFFLE ---> REDUCE
+Thread 2:  MAP ---> SORT ------>  \[ Barrier ]                REDUCE
+Thread 3:  MAP ---> SORT -----/                               REDUCE
+
+````
+
+---
+
+## Technical Highlights
+
+- **Concurrency:** Parallel execution of Map/Sort/Reduce using `std::thread`.
+- **Synchronization:** Custom barrier; progress/state tracking with `std::atomic`.
+- **Thread Safety:** Shared output guarded by `std::mutex`; lock-free job state.
+- **Asynchronous Jobs:** Start, monitor, and close jobs independently.
+- **Extensibility:** Pluggable key/value types and client-side map/reduce logic.
+- **Resource Safety:** No leaks; all allocations are owned and released deterministically.  
+- **Error Handling:** Required system errors terminate the process as specified.
+
+---
+
+## Public API (Essentials)
+
+```cpp
+JobHandle startMapReduceJob(const MapReduceClient& client,
+                            const InputVec& input,
+                            OutputVec& output,
+                            int numThreads);
+
+void waitForJob(JobHandle job);
+void getJobState(JobHandle job, JobState* state);
+void closeJobHandle(JobHandle job);
+
+// Client-side emit helpers:
+void emit2(IntermediatePair p);
+void emit3(OutputPair p);
+````
+
+See [`src/MapReduceFramework.h`](src/MapReduceFramework.h) and
+[`src/MapReduceClient.h`](src/MapReduceClient.h) for full details.
+
+---
+
+## Example
+
+```cpp
+#include "src/MapReduceFramework.h"
+
+// Define a MapReduceClient (see examples/SampleClient.cpp)
+JobHandle job = startMapReduceJob(client, inputVec, outputVec, /*threads=*/4);
+waitForJob(job);
+closeJobHandle(job);
+```
+
+A working demo (character frequency) is provided in
+[`examples/SampleClient.cpp`](examples/SampleClient.cpp).
+
+---
+
+## Project Structure
+
+```
+src/        # Framework sources and headers
+examples/   # Example clients
+Makefile    # Build instructions
+README.md   # This document
+```
+
+---
+
+## Build & Run
+
+```bash
+make
+make example
+./sample_client
+```
+
+---
+
+## Design Notes
+
+* Uses only standard C++11 primitives: `std::thread`, `std::mutex`, `std::atomic`.
+* The shuffle phase is single-threaded by design for deterministic grouping.
+* The framework contains no `main()` and prints no output except mandated error messages.
+
+---
+
+## Skills Demonstrated
+
+* C++11 concurrency (threads, atomics, mutexes, barriers)
+* Parallel programming & phase orchestration
+* Lock-free state/progress tracking
+* Performance-aware design and explicit resource ownership
+
+```
+
 # MapReduce Framework (C++)
 
 A modern, thread-safe C++ MapReduce framework for parallel data processing, designed according to academic and industry standards.
