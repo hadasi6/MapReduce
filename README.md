@@ -1,5 +1,9 @@
 # MapReduce Framework (C++)
 
+![C++11](https://img.shields.io/badge/C%2B%2B-11-blue)
+![Threads](https://img.shields.io/badge/Concurrency-Multi--Threaded-green)
+![Status](https://img.shields.io/badge/Build-Makefile-success)
+
 A modern, thread-safe C++ MapReduce framework for **parallel data processing**.  
 The design cleanly separates user-defined map/reduce logic (client) from the execution engine (framework) that manages threads, synchronization, and job orchestration.
 
