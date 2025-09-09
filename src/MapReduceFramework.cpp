@@ -13,6 +13,10 @@
 #define EXIT_ON_ERROR(code) exit(code)
 #define ERROR_EXIT_CODE 1
 
+
+// Forward declaration for JobContext (used in ThreadContext)
+struct JobContext;
+
 // ======================[ Internal Structs ]========================
 
 /**
