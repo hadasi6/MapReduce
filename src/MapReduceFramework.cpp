@@ -15,6 +15,9 @@
 
 // ======================[ Internal Structs ]========================
 
+// Forward declaration
+struct JobContext;
+
 /**
  * @brief Context for a single thread in the MapReduce job.
  */
